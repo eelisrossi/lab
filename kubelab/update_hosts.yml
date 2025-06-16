@@ -1,0 +1,13 @@
+---
+- hosts: alma
+  become: true
+  tasks:
+    - name: Update package cache
+      dnf:
+        update_cache: yes
+
+    - name: Update all packages
+      dnf:
+        name: "*"
+        state: latest
+

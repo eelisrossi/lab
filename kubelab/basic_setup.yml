@@ -1,0 +1,16 @@
+---
+- hosts: alma
+  become: true
+  tasks:
+    - name: Update cache
+      dnf:
+        update_cache: yes
+
+    - name: Install packages
+      dnf:
+        name:
+          - git
+          - curl
+          - wget
+          - vim
+        state: present
