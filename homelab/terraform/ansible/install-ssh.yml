@@ -1,0 +1,15 @@
+---
+- name: Update Almalinux LXC containers and install SSH on them
+  hosts: almalxc
+  gather_facts: false
+  tasks:
+    - name: Install openssh-server
+      ansible.builtin.yum:
+        name: 'openssh-server'
+        state: latest
+
+    - name: Enable sshd service
+      ansible.builtin.systemd_service:
+        state: started
+        enabled: true
+        name: sshd
