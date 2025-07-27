@@ -8,16 +8,17 @@ variable "ct_ssh_keys" {
   sensitive = true
 }
 
-resource "proxmox_lxc" "basic" {
+resource "proxmox_lxc" "glance" {
   target_node  = "srv-mox"
-  hostname     = "ct-test"
+  hostname     = "hlct-glance"
+  vmid         = 600
   ostemplate   = "local:vztmpl/almalinux-9-amd64-cloud-20250725-rootfs.tar.xz"
   password     = var.ct_root_password
-  unprivileged = true
+  unprivileged = false
 
-  cores    = 2
-  cpulimit = 2
-  memory   = 2048
+  cores    = 1
+  cpulimit = 1
+  memory   = 1024
 
   start  = true
   onboot = true
@@ -29,6 +30,8 @@ resource "proxmox_lxc" "basic" {
     size    = "8G"
   }
 
+  nameserver = "192.168.10.20"
+
   network {
     name   = "eth0"
     bridge = "VLAN10"
@@ -37,6 +40,6 @@ resource "proxmox_lxc" "basic" {
   }
 
   provisioner "local-exec" {
-    command = "ANSIBLE_CONFIG=./ansible/ansible.cfg ansible-playbook -i ./ansible/hosts.yml ./ansible/install-ssh.yml"
+    command = "ANSIBLE_CONFIG=../ansible/ansible.cfg ansible-playbook -i ../ansible/hosts.yml ../ansible/install-ssh.yml"
   }
 }

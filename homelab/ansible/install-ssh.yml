@@ -1,10 +1,15 @@
 ---
-- name: Update Almalinux LXC containers and install SSH on them
+- name: Install SSH on Almalinux LXC's
   hosts: almalxc
-  gather_facts: false
+  gather_facts: true
   tasks:
+    - name: Update all packages
+      ansible.builtin.dnf:
+        name: '*'
+        state: latest
+
     - name: Install openssh-server
-      ansible.builtin.yum:
+      ansible.builtin.dnf:
         name: 'openssh-server'
         state: latest
 
