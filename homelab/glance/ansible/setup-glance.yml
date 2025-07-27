@@ -1,0 +1,96 @@
+---
+- name : Install Glance binary
+  hosts: almalxc
+  vars:
+    glance_version: "v0.8.4"
+    glance_tar_filename: "glance-linux-amd64.tar.gz"
+    glance_url: "https://github.com/glanceapp/glance/releases/download/{{ glance_version }}/{{ glance_tar_filename }}"
+    glance_tar_dest: "/tmp/{{ glance_tar_filename }}"
+    glance_target_dir: "/opt/glance"
+    glance_config_dir: "/etc/glance"
+    glance_config_dest: "{{ glance_config_dir }}/glance.yml"
+    glance_config: "../configs/glance.yml"
+    glance_service: "../configs/glance.service"
+    glance_service_dest: "/etc/systemd/system/glance.service"
+
+  tasks:
+    - name: Check if Glance binary exists already
+      ansible.builtin.stat:
+        path: "{{ glance_target_dir }}/glance"
+      register: glance_binary
+
+    - name: Download Glance binary
+      ansible.builtin.get_url:
+        url: "{{ glance_url }}"
+        dest: "{{ glance_tar_dest }}"
+      when: not glance_binary.stat.exists
+
+    - name: Check if target directory exists
+      ansible.builtin.file:
+        path: "{{ glance_target_dir }}"
+        state: directory
+        mode: "0755"
+      when: not glance_binary.stat.exists
+
+    - name: Ensure tar is installed
+      ansible.builtin.dnf:
+        name: tar
+        state: present
+
+    - name: Unpack Glance archive to target directory
+      ansible.builtin.unarchive:
+        src: "{{ glance_tar_dest }}"
+        dest: "{{ glance_target_dir }}"
+        remote_src: yes
+      when: not glance_binary.stat.exists
+
+    - name: Remove the unpacked archive
+      ansible.builtin.file:
+        path: "{{ glance_tar_dest }}"
+        state: absent
+      when: not glance_binary.stat.exists
+
+    - name: Check if config target directory exists
+      ansible.builtin.file:
+        path: "{{ glance_config_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Ensure glance user exists
+      ansible.builtin.user:
+        name: glance
+        system: yes
+        shell: /sbin/nologin
+
+    - name: Copy Glance config from repo to host
+      ansible.builtin.copy:
+        src: "{{ glance_config }}"
+        dest: "{{ glance_config_dest }}"
+        owner: glance
+        group: glance
+        mode: '0644'
+      notify: Restart Glance
+
+    - name: Copy Glance systemd service file
+      ansible.builtin.template:
+        src: "{{ glance_service }}"
+        dest: "{{ glance_service_dest }}"
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: yes
+
+    - name: Enable and start Glance service
+      ansible.builtin.systemd:
+        name: glance
+        enabled: yes
+        state: started
+
+  handlers:
+    - name: Restart Glance
+      ansible.builtin.systemd:
+        name: glance
+        state: restarted
