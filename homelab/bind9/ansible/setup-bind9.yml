@@ -1,0 +1,62 @@
+---
+- name: Install and setup Bind9 DNS Server
+  hosts: dnslxc
+  vars_files:
+    - vault.yml
+  vars:
+    named_config: "../configs/named.conf"
+    named_config_dest: "/etc/named.conf"
+    dns_zone_template: "../configs/named.milliways.lan.j2"
+    dns_zone_config_dest: "/var/named/named.milliways.lan"
+
+  tasks:
+    - name: Update all packages
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+
+    - name: Install bind and bind-utils
+      ansible.builtin.dnf:
+        name:
+          - bind
+          - bind-utils
+        state: present
+
+    - name: Enable and start named.service
+      ansible.builtin.systemd_service:
+        name: named
+        enabled: yes
+        state: started
+
+    - name: show dns_records
+      debug:
+        var: dns_records
+
+    - name: Copy named config from repo to host
+      ansible.builtin.copy:
+        src: "{{ named_config }}"
+        dest: "{{ named_config_dest }}"
+        owner: named
+        group: named
+        mode: '0644'
+
+    - name: Generate zone file
+      template:
+        src: "{{ dns_zone_template }}"
+        dest: "{{ dns_zone_config_dest }}"
+      notify: Restart named
+
+    - name: Set DNS server to this one
+      community.general.nmcli:
+        conn_name: "System eth0"
+        dns4: "192.168.10.5"
+        state: present
+
+    - name: Reload NetworkManager
+      shell: nmcli con reload
+
+  handlers:
+    - name: Restart named
+      ansible.builtin.systemd:
+        name: named
+        state: restarted

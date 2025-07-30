@@ -1,11 +1,11 @@
 ---
 - name: Install SSH on Almalinux LXC's
-  hosts: almalxc
+  hosts: dnslxc
   gather_facts: true
   tasks:
     - name: Update all packages
       ansible.builtin.dnf:
-        name: "*"
+        name: '*'
         state: latest
 
     - name: Install openssh-server
