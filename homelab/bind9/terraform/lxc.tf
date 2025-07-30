@@ -19,6 +19,7 @@ resource "proxmox_lxc" "ns1" {
   cores    = 2
   cpulimit = 2
   memory   = 2048
+  swap = 1024
 
   start  = true
   onboot = true
@@ -57,6 +58,7 @@ resource "proxmox_lxc" "ns2" {
   cores    = 2
   cpulimit = 2
   memory   = 2048
+  swap = 1024
 
   start  = true
   onboot = true
