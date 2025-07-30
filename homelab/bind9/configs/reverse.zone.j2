@@ -1,5 +1,5 @@
 $TTL 1h
-@   IN  SOA ns1.milliways.lan. admin.milliways.lan. (
+@   IN  SOA {{ dns_hostname }}. admin.milliways.lan. (
         {{ ansible_date_time.date | regex_replace('-', '') }}01 ; Serial
         1h         ; Refresh
         15m        ; Retry
@@ -7,6 +7,7 @@ $TTL 1h
         1h )       ; Negative Cache TTL
 
     IN  NS  ns1.milliways.lan.
+    IN  NS  ns2.milliways.lan.
 
 {% for ptr in ptr_records %}
 {{ ptr.ip_suffix }}   IN  PTR   {{ ptr.hostname }}.

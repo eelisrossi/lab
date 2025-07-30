@@ -1,6 +1,6 @@
 ---
 - name: Install SSH on Almalinux LXC's
-  hosts: dnslxc
+  hosts: nameservers
   gather_facts: true
   tasks:
     - name: Update all packages

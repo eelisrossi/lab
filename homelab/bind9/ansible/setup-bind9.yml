@@ -1,6 +1,6 @@
 ---
 - name: Install and setup Bind9 DNS Server
-  hosts: dnslxc
+  hosts: nameservers
   vars_files:
     - vault.yml
   vars:
@@ -11,21 +11,6 @@
     reverse_zone_template: "../configs/reverse.zone.j2"
 
   tasks:
-    - name: Check if internic.net can be resolved and set nameserver if not
-      block:
-        - name: Attempt to resolve internic.net
-          ansible.builtin.command: dig +short internic.net
-          register: dig_result
-          changed_when: false
-          failed_when: dig_result.rc != 0 or dig_result.stdout == ""
-
-      rescue:
-        - name: Set DNS server to 1.1.1.1
-          community.general.nmcli:
-            conn_name: "System eth0"
-            dns4: "1.1.1.1"
-            state: present
-
     - name: Update all packages
       ansible.builtin.dnf:
         name: "*"
@@ -79,10 +64,10 @@
         enabled: yes
         state: started
 
-    - name: Set DNS server to this one
+    - name: Set DNS servers to ns1 and ns2
       community.general.nmcli:
         conn_name: "System eth0"
-        dns4: "192.168.10.5"
+        dns4: "192.168.10.5,192.168.10.6"
         state: present
 
     - name: Reload NetworkManager
