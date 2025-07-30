@@ -4,6 +4,7 @@
 
 options {
 	listen-on port 53 { 127.0.0.1; 192.168.0.0/17; };
+    listen-on-v6 { none; };
 	directory 	"/var/named";
 	dump-file 	"/var/named/data/cache_dump.db";
 	statistics-file "/var/named/data/named_stats.txt";
@@ -13,10 +14,7 @@ options {
 	allow-query     { 192.168.0.0/17; localhost; };
 
 	recursion yes;
-    forwarders {
-        1.1.1.1;
-        8.8.8.8;
-    };
+    allow-recursion { 192.168.0.0/17; localhost; };
 
 	dnssec-validation yes;
 
@@ -37,6 +35,11 @@ logging {
     };
 };
 
+zone "." IN {
+    type hint;
+    file "/var/named/named.root";
+};
+
 zone "milliways.lan" IN {
 	type master;
 	file "/var/named/named.milliways.lan";
@@ -52,4 +55,3 @@ zone "{{ zone.name }}" IN {
 
 include "/etc/named.rfc1912.zones";
 include "/etc/named.root.key";
-

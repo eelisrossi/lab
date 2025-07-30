@@ -11,6 +11,21 @@
     reverse_zone_template: "../configs/reverse.zone.j2"
 
   tasks:
+    - name: Check if internic.net can be resolved and set nameserver if not
+      block:
+        - name: Attempt to resolve internic.net
+          ansible.builtin.command: dig +short internic.net
+          register: dig_result
+          changed_when: false
+          failed_when: dig_result.rc != 0 or dig_result.stdout == ""
+
+      rescue:
+        - name: Set DNS server to 1.1.1.1
+          community.general.nmcli:
+            conn_name: "System eth0"
+            dns4: "1.1.1.1"
+            state: present
+
     - name: Update all packages
       ansible.builtin.dnf:
         name: "*"
@@ -23,11 +38,13 @@
           - bind-utils
         state: present
 
-    - name: Enable and start named.service
-      ansible.builtin.systemd_service:
-        name: named
-        enabled: yes
-        state: started
+    - name: Download latest root hints file for Bind9
+      ansible.builtin.get_url:
+        url: https://www.internic.net/domain/named.root
+        dest: /var/named/named.root
+        owner: root
+        group: named
+        mode: '0644'
 
     - name: Template named.conf
       template:
@@ -56,6 +73,12 @@
         ptr_records: "{{ item.ptr_records }}"
       notify: reload named
 
+    - name: Enable and start named.service
+      ansible.builtin.systemd_service:
+        name: named
+        enabled: yes
+        state: started
+
     - name: Set DNS server to this one
       community.general.nmcli:
         conn_name: "System eth0"
@@ -64,7 +87,6 @@
 
     - name: Reload NetworkManager
       shell: nmcli con reload
-
 
   handlers:
     - name: reload named
