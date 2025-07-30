@@ -1,5 +1,5 @@
 //
-// named.conf
+// /etc/named.conf
 //
 
 options {
@@ -42,6 +42,13 @@ zone "milliways.lan" IN {
 	file "/var/named/named.milliways.lan";
 };
 
+{% for zone in dns_reverse_zones %}
+zone "{{ zone.name }}" IN {
+    type master;
+    file "/var/named/{{ zone.file }}";
+    allow-update { none; };
+};
+{% endfor %}
 
 include "/etc/named.rfc1912.zones";
 include "/etc/named.root.key";

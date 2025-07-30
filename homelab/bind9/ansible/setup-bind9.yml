@@ -4,10 +4,11 @@
   vars_files:
     - vault.yml
   vars:
-    named_config: "../configs/named.conf"
-    named_config_dest: "/etc/named.conf"
+    named_conf_template: "../configs/named.conf.j2"
+    named_conf_dest: "/etc/named.conf"
     dns_zone_template: "../configs/named.milliways.lan.j2"
     dns_zone_config_dest: "/var/named/named.milliways.lan"
+    reverse_zone_template: "../configs/reverse.zone.j2"
 
   tasks:
     - name: Update all packages
@@ -28,23 +29,32 @@
         enabled: yes
         state: started
 
-    - name: show dns_records
-      debug:
-        var: dns_records
-
-    - name: Copy named config from repo to host
-      ansible.builtin.copy:
-        src: "{{ named_config }}"
-        dest: "{{ named_config_dest }}"
-        owner: named
+    - name: Template named.conf
+      template:
+        src: "{{ named_conf_template }}"
+        dest: "{{ named_conf_dest }}"
+        owner: root
         group: named
         mode: '0644'
+      notify: reload named
 
     - name: Generate zone file
       template:
         src: "{{ dns_zone_template }}"
         dest: "{{ dns_zone_config_dest }}"
-      notify: Restart named
+      notify: reload named
+
+    - name: Create reverse zone files
+      template:
+        src: "{{ reverse_zone_template }}"
+        dest: "/var/named/{{ item.file }}"
+        owner: named
+        group: named
+        mode: '0640'
+      loop: "{{ dns_reverse_zones }}"
+      vars:
+        ptr_records: "{{ item.ptr_records }}"
+      notify: reload named
 
     - name: Set DNS server to this one
       community.general.nmcli:
@@ -55,8 +65,9 @@
     - name: Reload NetworkManager
       shell: nmcli con reload
 
+
   handlers:
-    - name: Restart named
+    - name: reload named
       ansible.builtin.systemd:
         name: named
         state: restarted

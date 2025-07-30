@@ -8,6 +8,6 @@ $TTL 1h
 
     IN  NS  ns1.milliways.lan.
 
-{% for host, ip in dns_records.items() %}
-{{ host }}   IN  A   {{ ip }}
+{% for ptr in ptr_records %}
+{{ ptr.ip_suffix }}   IN  PTR   {{ ptr.hostname }}.
 {% endfor %}
