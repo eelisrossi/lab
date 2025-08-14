@@ -6,8 +6,8 @@
   vars:
     named_conf_template: "../configs/named.conf.j2"
     named_conf_dest: "/etc/named.conf"
-    dns_zone_template: "../configs/named.milliways.lan.j2"
-    dns_zone_config_dest: "/var/named/named.milliways.lan"
+    dns_zone_template: "../configs/named.milliways.fi.j2"
+    dns_zone_config_dest: "/var/named/named.milliways.fi"
     reverse_zone_template: "../configs/reverse.zone.j2"
 
   tasks:

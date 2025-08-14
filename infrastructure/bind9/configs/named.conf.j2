@@ -40,9 +40,9 @@ zone "." IN {
     file "/var/named/named.root";
 };
 
-zone "milliways.lan" IN {
+zone "milliways.fi" IN {
 	type master;
-	file "/var/named/named.milliways.lan";
+	file "/var/named/named.milliways.fi";
 };
 
 {% for zone in dns_reverse_zones %}
