@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+show_help() {
+    cat << EOF
+Usage: $(basename "$0") [OPTIONS] user@destination
+
+Get Server Information simply gets some specific information from a server
+with SSH. You need to have access to destination server with SSH (obviously).
+
+Options:
+  -h, --help      Show this help message and exit
+
+Examples:
+  $(basename "$0") root@some.domain.fi
+  $(basename "$0") --help
+
+EOF
+}
+
+# Parse arguments for help
+for arg in "$@"; do
+    case $arg in
+        -h|--help|help)
+            show_help
+            exit 0
+            ;;
+    esac
+done
+
+ssh_connection=$1
+
+printf "Getting information from $ssh_connection\n\n"
+
+commands=(
+    "df -h | head -n 1 && df -h | tail -n +2 | sed 's/%//g' | sort -k5,5nr"
+    "ps -e --sort=-pcpu -o pid,pcpu,comm | head -6"
+    "ps -e --sort=-pmem -o pid,pmem,comm | head -n 6"
+    "free -ht"
+)
+
+prettyCommands=()
+
+for cmd in "${commands[@]}"; do
+    prettyCommands+=("$cmd")
+    prettyCommands+=("echo")
+done
+
+var=$( IFS=$';'; echo "${prettyCommands[*]}" )
+
+ssh $1 "$var"
+
