@@ -109,6 +109,17 @@ provision_vms() {
     log_success "VMs provisioned successfully"
 }
 
+clean_ssh_keys() {
+    log_info "Cleaning old SSH host keys..."
+    
+    # Remove SSH keys for k3s cluster IPs
+    ssh-keygen -R 192.168.20.21 >/dev/null 2>&1 || true
+    ssh-keygen -R 192.168.20.31 >/dev/null 2>&1 || true
+    ssh-keygen -R 192.168.20.32 >/dev/null 2>&1 || true
+    
+    log_success "SSH host keys cleaned"
+}
+
 wait_for_ssh() {
     log_info "Waiting for VMs to be SSH accessible..."
     
@@ -275,6 +286,8 @@ main() {
     # Provision VMs
     if [ "$SKIP_TERRAFORM" = false ]; then
         provision_vms
+        echo ""
+        clean_ssh_keys
         echo ""
         wait_for_ssh
         echo ""
