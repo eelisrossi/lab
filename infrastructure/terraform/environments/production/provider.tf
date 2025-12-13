@@ -1,16 +1,16 @@
 // Provider configuration for production environment. Values should come from environment or top-level variables when orchestrating.
-terraform {
-  required_providers {
-    proxmox = {
-      source = "telmate/proxmox"
-      version = "3.0.2-rc05"
-    }
-  }
-}
 
-variable "proxmox_api_url" { type = string }
-variable "proxmox_api_token_id" { type = string sensitive = true }
-variable "proxmox_api_token_secret" { type = string sensitive = true }
+variable "proxmox_api_url" {
+  type = string
+}
+variable "proxmox_api_token_id" {
+  type      = string
+  sensitive = true
+}
+variable "proxmox_api_token_secret" {
+  type      = string
+  sensitive = true
+}
 
 provider "proxmox" {
   pm_api_url          = var.proxmox_api_url
