@@ -21,6 +21,7 @@ module "k3s_control_plane" {
   network_bridge = var.network_bridge
   network_ip     = "${each.value.ip}/${var.network_cidr}"
   network_gw     = var.network_gw
+  nameserver     = var.nameserver
 
   ssh_public_keys = var.vm_ssh_keys
   tags            = "k3s,control-plane"
@@ -42,6 +43,7 @@ module "k3s_workers" {
   network_bridge = var.network_bridge
   network_ip     = "${each.value.ip}/${var.network_cidr}"
   network_gw     = var.network_gw
+  nameserver     = var.nameserver
 
   ssh_public_keys = var.vm_ssh_keys
   tags            = "k3s,worker"

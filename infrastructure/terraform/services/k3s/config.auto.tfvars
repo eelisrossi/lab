@@ -1,6 +1,6 @@
 network_bridge = "VLAN20"
 network_gw     = "192.168.20.1"
-nameserver     = "1.1.1.1 8.8.8.8"  # Use public DNS until bind9 forwarding is configured
+nameserver     = "192.168.10.5 192.168.10.6"  # Use bind9 DNS servers
 
 control_plane = [
   {

@@ -26,6 +26,12 @@ variable "network_gw" {
   type        = string
 }
 
+variable "nameserver" {
+  description = "DNS nameservers (space-separated)"
+  type        = string
+  default     = "192.168.10.5 192.168.10.6"
+}
+
 variable "control_plane" {
   description = "Control plane nodes"
   type        = list(object({ hostname = string, vmid = number, target_node = string, ip = string }))
