@@ -1,1 +1,33 @@
 scripts/test.sh
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+**/*.tfstate
+crash.log
+override.tf
+override.tf.json
+terraform.rc
+.terraform.lock.hcl
+
+# Terraform vars/secrets
+*.auto.tfvars
+terraform.tfvars
+credentials.auto.tfvars
+**/terraform.tfvars
+
+# Ignore terraform state and local terraform dirs per module
+*/terraform/terraform.tfstate
+*/terraform/terraform.tfstate.backup
+*/terraform/.terraform
+*/terraform/.terraform.lock.hcl
+
+# Ansible
+*.retry
+*.vault_pass
+*.vault_pass.txt
+
+# Logs/temp
+*.log
+tmp/

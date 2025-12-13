@@ -9,20 +9,21 @@ variable "ct_ssh_keys" {
 }
 
 resource "proxmox_lxc" "ns1" {
-  target_node  = "srv-mox"
+  target_node  = "eddie"
   hostname     = "hlct-ns1"
   vmid         = 601
-  ostemplate   = "local:vztmpl/almalinux-9-amd64-cloud-20250725-rootfs.tar.xz"
+  ostemplate   = "local:vztmpl/almalinux-10-default_20250930_amd64.tar.xz"
   password     = var.ct_root_password
   unprivileged = true
 
-  cores    = 2
-  cpulimit = 2
-  memory   = 2048
-  swap = 1024
+  cores    = 1
+  cpulimit = 1
+  memory   = 768
+  swap = 256
 
   start  = true
   onboot = true
+  protection = true
 
   ssh_public_keys = var.ct_ssh_keys
 
@@ -44,24 +45,27 @@ resource "proxmox_lxc" "ns1" {
     gw     = "192.168.10.1"
   }
 
+  startup = "order=1,up=10,down=60"
+
   tags = "almalinux;iac;lxc;dns"
 }
 
 resource "proxmox_lxc" "ns2" {
-  target_node  = "srv-prox"
+  target_node  = "hactar"
   hostname     = "hlct-ns2"
   vmid         = 602
-  ostemplate   = "local:vztmpl/almalinux-9-amd64-cloud-20250725-rootfs.tar.xz"
+  ostemplate   = "local:vztmpl/almalinux-10-default_20250930_amd64.tar.xz"
   password     = var.ct_root_password
   unprivileged = true
 
-  cores    = 2
-  cpulimit = 2
-  memory   = 2048
-  swap = 1024
+  cores    = 1
+  cpulimit = 1
+  memory   = 768
+  swap = 256
 
   start  = true
   onboot = true
+  protection = true
 
   ssh_public_keys = var.ct_ssh_keys
 
@@ -81,6 +85,7 @@ resource "proxmox_lxc" "ns2" {
     gw     = "192.168.10.1"
   }
 
+  startup = "order=1,up=10,down=60"
 
   tags = "almalinux;iac;lxc;dns"
 }

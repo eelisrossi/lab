@@ -9,13 +9,11 @@ The 'Infrastructure' directory houses all of the different Infrastructure as Cod
 ### Currently running:
 
 * Bind9 DNS-server that runs on two nodes
-* Glance dashboard
 
 ### To be added soon
 
 * Personal gitlab instance
 * Zabbix VM for monitoring my lab
-* Certificate Authority and other SSL certificate related services
 * A reverse proxy for easier usage of different web services that I self-host
 
 ## Lab environment

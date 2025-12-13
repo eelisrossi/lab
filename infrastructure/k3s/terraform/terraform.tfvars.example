@@ -1,0 +1,10 @@
+pm_api_url = "https://pve.example.com:8006/api2/json"
+pm_api_token_id = "terraform@pam!tokenid"
+pm_api_token_secret = "REPLACE_ME"
+proxmox_host = "pve.example.com"
+ssh_user = "root"
+ssh_private_key_path = "~/.ssh/id_rsa"
+storage = "local-lvm"
+ci_storage = "local"
+bridge = "VLAN10"
+# TODO: provide node-specific variables (vmids, ips, templates) used by k3s module
