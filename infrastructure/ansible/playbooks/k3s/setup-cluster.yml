@@ -3,10 +3,10 @@
   hosts: k3s_control_plane
   become: true
   roles:
-    - k3s_server
+    - role: ../../roles/k3s_server
 
 - name: Setup k3s worker nodes
   hosts: k3s_workers
   become: true
   roles:
-    - k3s_agent
+    - role: ../../roles/k3s_agent
