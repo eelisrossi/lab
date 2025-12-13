@@ -1,4 +1,3 @@
-// Variables for proxmox-lxc module. Extracted from bind9/terraform/lxc.tf
 variable "hostname" {
   description = "Container hostname"
   type        = string
@@ -15,12 +14,12 @@ variable "target_node" {
 }
 
 variable "ostemplate" {
-  description = "Proxmox LXC template path (e.g., local:vztmpl/... )"
+  description = "LXC template path (e.g., local:vztmpl/almalinux-10...)"
   type        = string
 }
 
 variable "password" {
-  description = "Root password for container (sensitive)"
+  description = "Root password for container"
   type        = string
   sensitive   = true
 }
@@ -33,26 +32,29 @@ variable "ssh_public_keys" {
 }
 
 variable "unprivileged" {
-  description = "Whether the container is unprivileged"
+  description = "Run as unprivileged container"
   type        = bool
   default     = true
 }
 
 variable "cores" {
-  description = "CPU cores for container"
+  description = "CPU cores"
   type        = number
   default     = 1
 }
+
 variable "cpulimit" {
   description = "CPU limit"
   type        = number
   default     = 1
 }
+
 variable "memory" {
   description = "Memory in MB"
   type        = number
   default     = 768
 }
+
 variable "swap" {
   description = "Swap in MB"
   type        = number
@@ -64,58 +66,36 @@ variable "disk_size" {
   type        = string
   default     = "8G"
 }
+
 variable "storage" {
-  description = "Storage to use for rootfs"
+  description = "Storage backend"
   type        = string
   default     = "local-lvm"
 }
 
-variable "network_name" {
-  description = "Network interface name inside container"
-  type        = string
-  default     = "eth0"
-}
 variable "network_bridge" {
-  description = "Bridge to attach the container to"
+  description = "Network bridge to attach container"
   type        = string
 }
+
 variable "network_ip" {
   description = "IP with CIDR (e.g., 192.168.1.10/24)"
   type        = string
 }
+
 variable "network_gw" {
-  description = "Gateway IP"
+  description = "Network gateway IP"
   type        = string
 }
 
 variable "nameserver" {
-  description = "Container nameserver"
+  description = "DNS nameserver"
   type        = string
   default     = "1.1.1.1"
 }
 
-variable "startup" {
-  description = "Startup options"
-  type        = string
-  default     = "order=1,up=10,down=60"
-}
-variable "start" {
-  description = "Start container after creation"
-  type        = bool
-  default     = true
-}
 variable "onboot" {
-  description = "Start on boot"
-  type        = bool
-  default     = true
-}
-variable "protection" {
-  description = "Enable protection"
-  type        = bool
-  default     = true
-}
-variable "nesting" {
-  description = "Enable nesting feature"
+  description = "Start container on host boot"
   type        = bool
   default     = true
 }

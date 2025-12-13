@@ -1,5 +1,3 @@
-// Migrated logic derived from: bind9/terraform/lxc.tf
-// This module provisions a Proxmox LXC container.
 resource "proxmox_lxc" "container" {
   target_node  = var.target_node
   hostname     = var.hostname
@@ -13,14 +11,14 @@ resource "proxmox_lxc" "container" {
   memory   = var.memory
   swap     = var.swap
 
-  start      = var.start
+  start      = true
   onboot     = var.onboot
-  protection = var.protection
+  protection = true
 
   ssh_public_keys = var.ssh_public_keys
 
   features {
-    nesting = var.nesting
+    nesting = true
   }
 
   rootfs {
@@ -31,13 +29,11 @@ resource "proxmox_lxc" "container" {
   nameserver = var.nameserver
 
   network {
-    name   = var.network_name
+    name   = "eth0"
     bridge = var.network_bridge
     ip     = var.network_ip
     gw     = var.network_gw
   }
-
-  startup = var.startup
 
   tags = var.tags
 }
