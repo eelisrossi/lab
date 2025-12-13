@@ -1,4 +1,10 @@
 ---
+- name: Disable SELinux (required for k3s on AlmaLinux)
+  ansible.posix.selinux:
+    state: permissive
+    policy: targeted
+  become: true
+
 - name: Check if k3s is already installed
   ansible.builtin.stat:
     path: /usr/local/bin/k3s
