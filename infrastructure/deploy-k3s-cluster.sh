@@ -87,13 +87,22 @@ provision_vms() {
     cd "${TERRAFORM_DIR}"
     
     log_info "Running terraform init..."
-    terraform init -upgrade
+    if ! terraform init -upgrade 2>&1; then
+        log_error "Terraform init failed - check internet connectivity"
+        return 1
+    fi
     
     log_info "Running terraform plan..."
-    terraform plan
+    if ! terraform plan; then
+        log_error "Terraform plan failed"
+        return 1
+    fi
     
     log_info "Running terraform apply..."
-    terraform apply -auto-approve
+    if ! terraform apply -auto-approve; then
+        log_error "Terraform apply failed"
+        return 1
+    fi
     
     log_success "VMs provisioned successfully"
 }
@@ -141,8 +150,8 @@ retrieve_kubeconfig() {
     
     mkdir -p "${kubeconfig_dir}"
     
-    # Retrieve kubeconfig from control plane
-    if ssh "${CONTROL_PLANE_USER}@${CONTROL_PLANE_IP}" sudo cat /etc/rancher/k3s/k3s.yaml > "${k3s_config}"; then
+    # Retrieve kubeconfig from control plane (with SSH options to skip host key checking)
+    if ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${CONTROL_PLANE_USER}@${CONTROL_PLANE_IP}" sudo cat /etc/rancher/k3s/k3s.yaml > "${k3s_config}" 2>/dev/null; then
         log_success "Retrieved kubeconfig from control plane"
     else
         log_error "Failed to retrieve kubeconfig"
