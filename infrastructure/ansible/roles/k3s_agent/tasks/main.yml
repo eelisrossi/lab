@@ -13,6 +13,7 @@
 
 - name: Install k3s agent
   ansible.builtin.shell: |
+    INSTALL_K3S_SKIP_SELINUX_RPM=true \
     K3S_URL="{{ hostvars[groups['k3s_control_plane'][0]]['k3s_server_url'] }}" \
     K3S_TOKEN="{{ hostvars[groups['k3s_control_plane'][0]]['k3s_node_token'] }}" \
     sh /tmp/k3s-install.sh

@@ -13,7 +13,7 @@
 
 - name: Install k3s server
   ansible.builtin.shell: |
-    INSTALL_K3S_EXEC="server --write-kubeconfig-mode=644" sh /tmp/k3s-install.sh
+    INSTALL_K3S_SKIP_SELINUX_RPM=true INSTALL_K3S_EXEC="server --write-kubeconfig-mode=644" sh /tmp/k3s-install.sh
   when: not k3s_binary.stat.exists
   register: k3s_install
 
