@@ -1,12 +1,45 @@
 ---
-# Placeholder tasks for k3s server role (control plane setup)
-- name: Ensure prerequisite packages are installed
-  ansible.builtin.package:
-    name:
-      - curl
-      - iptables
-    state: present
+- name: Check if k3s is already installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s
+  register: k3s_binary
 
-- name: Placeholder - install k3s server
+- name: Download k3s install script
+  ansible.builtin.get_url:
+    url: https://get.k3s.io
+    dest: /tmp/k3s-install.sh
+    mode: '0755'
+  when: not k3s_binary.stat.exists
+
+- name: Install k3s server
+  ansible.builtin.shell: |
+    INSTALL_K3S_EXEC="server --write-kubeconfig-mode=644" sh /tmp/k3s-install.sh
+  when: not k3s_binary.stat.exists
+  register: k3s_install
+
+- name: Wait for k3s to be ready
+  ansible.builtin.wait_for:
+    path: /etc/rancher/k3s/k3s.yaml
+    timeout: 300
+
+- name: Get k3s node token
+  ansible.builtin.slurp:
+    src: /var/lib/rancher/k3s/server/node-token
+  register: k3s_token
+
+- name: Save k3s token for workers
+  ansible.builtin.set_fact:
+    k3s_node_token: "{{ k3s_token.content | b64decode | trim }}"
+
+- name: Get k3s server URL
+  ansible.builtin.set_fact:
+    k3s_server_url: "https://{{ ansible_host }}:6443"
+
+- name: Display k3s status
+  ansible.builtin.command: kubectl get nodes
+  changed_when: false
+  register: k3s_nodes
+
+- name: Show cluster status
   ansible.builtin.debug:
-    msg: "k3s server install placeholder - implement installation steps here"
+    var: k3s_nodes.stdout_lines

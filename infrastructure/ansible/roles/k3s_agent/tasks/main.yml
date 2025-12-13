@@ -1,11 +1,25 @@
 ---
-# Placeholder tasks for k3s agent role (worker setup)
-- name: Ensure prerequisite packages are installed
-  ansible.builtin.package:
-    name:
-      - curl
-    state: present
+- name: Check if k3s agent is already installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s
+  register: k3s_binary
 
-- name: Placeholder - install k3s agent
-  ansible.builtin.debug:
-    msg: "k3s agent install placeholder - implement installation steps here"
+- name: Download k3s install script
+  ansible.builtin.get_url:
+    url: https://get.k3s.io
+    dest: /tmp/k3s-install.sh
+    mode: '0755'
+  when: not k3s_binary.stat.exists
+
+- name: Install k3s agent
+  ansible.builtin.shell: |
+    K3S_URL="{{ hostvars[groups['k3s_control_plane'][0]]['k3s_server_url'] }}" \
+    K3S_TOKEN="{{ hostvars[groups['k3s_control_plane'][0]]['k3s_node_token'] }}" \
+    sh /tmp/k3s-install.sh
+  when: not k3s_binary.stat.exists
+  register: k3s_agent_install
+
+- name: Wait for k3s agent to be ready
+  ansible.builtin.wait_for:
+    timeout: 60
+  when: k3s_agent_install is changed
