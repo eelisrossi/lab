@@ -62,7 +62,7 @@ variable "storage" {
 }
 variable "disk_size" {
   type    = string
-  default = "16G"
+  default = "8G"
 }
 
 variable "network_bridge" {
