@@ -6,3 +6,4 @@ reverse_zone_template: "reverse.zone.j2"
 dns_reverse_zones: []
 # group list for dns nmcli setting
 group_dns_servers: "192.168.10.5,192.168.10.6"
+nm_conn_name: "eth0"

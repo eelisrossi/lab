@@ -63,13 +63,16 @@
     enabled: yes
     state: started
 
-- name: Set DNS servers to ns1 and ns2 (NetworkManager)
-  community.general.nmcli:
-    conn_name: "eth0"
-    type: ethernet
-    dns4: "{{ group_dns_servers | default('192.168.10.5,192.168.10.6') }}"
-    state: present
+- name: Set DNS on NM connection
+  become: true
+  ansible.builtin.command: >-
+    nmcli connection modify "{{ nm_conn_name | default('eth0') }}"
+    ipv4.dns "{{ group_dns_servers | default('192.168.10.5,192.168.10.6') }}"
+    ipv4.ignore-auto-dns yes
 
-- name: Reload NetworkManager
-  ansible.builtin.shell: nmcli con reload
-  changed_when: false
+- name: Reactivate NM connection
+  become: true
+  ansible.builtin.command: nmcli connection up "{{ nm_conn_name | default('eth0') }}"
+  register: nm_up_result
+  changed_when: nm_up_result.rc == 0
+
