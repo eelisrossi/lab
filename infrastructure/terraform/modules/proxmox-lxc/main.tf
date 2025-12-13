@@ -41,28 +41,3 @@ resource "proxmox_lxc" "container" {
 
   tags = var.tags
 }
-
-resource "null_resource" "bootstrap" {
-  count = var.bootstrap_enabled ? 1 : 0
-  depends_on = [proxmox_lxc.container]
-
-  provisioner "file" {
-    content     = var.bootstrap_script
-    destination = "/root/bootstrap.sh"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x /root/bootstrap.sh",
-      "bash /root/bootstrap.sh"
-    ]
-  }
-
-  connection {
-    type        = "ssh"
-    host        = split("/", try(proxmox_lxc.container.network[0].ip, ""))[0]
-    user        = var.bootstrap_user
-    private_key = var.bootstrap_private_key != "" ? var.bootstrap_private_key : null
-    timeout     = var.bootstrap_timeout
-  }
-}
