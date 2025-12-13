@@ -1,10 +1,7 @@
 output "control_plane_ips" {
-  value = [for n in var.control_plane : n.ip]
+  value = [for node in module.k3s_control_plane : node.ip]
 }
 
 output "worker_ips" {
-  value = [for n in var.workers : n.ip]
+  value = [for node in module.k3s_workers : node.ip]
 }
-
-output "control_plane_hostnames" { value = [for n in var.control_plane : n.hostname] }
-output "worker_hostnames" { value = [for n in var.workers : n.hostname] }

@@ -1,5 +1,7 @@
 # Ignore terraform variable files with secrets
+secrets.auto.tfvars
 *.tfvars
 *.tfvars.*
-# Allow example files
+# Allow example and config files
 !*.tfvars.example
+!config.auto.tfvars

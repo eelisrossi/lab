@@ -1,34 +1,63 @@
-// Variables for k3s service. Map control plane and worker nodes.
-variable "ostemplate" {
-  description = "LXC template for k3s nodes"
+variable "vm_ssh_keys" {
+  description = "SSH public keys for VMs"
   type        = string
-  default     = "local:vztmpl/almalinux-9-amd64-cloud-20250725-rootfs.tar.xz"
+  sensitive   = true
 }
-variable "ct_root_password" {
+
+variable "vm_root_password" {
   type      = string
   sensitive = true
 }
-variable "ct_ssh_keys" {
-  type      = string
-  sensitive = true
-}
+
 variable "network_bridge" {
-  type    = string
-  default = "VLAN10"
+  description = "Network bridge"
+  type        = string
+  default     = "vmbr0"
 }
+
+variable "network_cidr" {
+  description = "Network CIDR suffix (e.g., 24 for /24)"
+  type        = number
+  default     = 24
+}
+
 variable "network_gw" {
-  type    = string
-  default = "192.168.10.1"
+  description = "Network gateway"
+  type        = string
 }
 
 variable "control_plane" {
-  description = "List of control plane node definitions (objects with hostname, vmid, target_node, ip)"
-  type = list(object({ hostname = string, vmid = number, target_node = string, ip = string }))
-  default = []
+  description = "Control plane nodes"
+  type        = list(object({ hostname = string, vmid = number, target_node = string, ip = string }))
+  default     = []
+}
+
+variable "control_plane_cores" {
+  description = "CPU cores for control plane nodes"
+  type        = number
+  default     = 2
+}
+
+variable "control_plane_memory" {
+  description = "Memory in MB for control plane nodes"
+  type        = number
+  default     = 4096
 }
 
 variable "workers" {
-  description = "List of worker node definitions (objects with hostname, vmid, target_node, ip)"
-  type = list(object({ hostname = string, vmid = number, target_node = string, ip = string }))
-  default = []
+  description = "Worker nodes"
+  type        = list(object({ hostname = string, vmid = number, target_node = string, ip = string }))
+  default     = []
+}
+
+variable "worker_cores" {
+  description = "CPU cores for worker nodes"
+  type        = number
+  default     = 2
+}
+
+variable "worker_memory" {
+  description = "Memory in MB for worker nodes"
+  type        = number
+  default     = 2048
 }

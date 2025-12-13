@@ -1,5 +1,3 @@
-// Provider configuration for k3s service (same as bind9/provider.tf)
-
 variable "proxmox_api_url" {
   type = string
 }

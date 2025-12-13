@@ -1,31 +1,48 @@
-// k3s service root module using proxmox-lxc (based on existing k3s/terraform/main.tf)
-// Original file: k3s/terraform/main.tf
-
-// Create control plane nodes
 locals {
-  control = var.control_plane
-  workers = var.workers
-}
-
-resource "null_resource" "placeholder" {
-  provisioner "local-exec" {
-    command = "echo 'This module should be expanded to create multiple control and worker nodes using the modules/proxmox-lxc or modules/proxmox-vm as appropriate.'"
+  templates = {
+    eddie  = "templ-almalinux-10-eddie"
+    hactar = "templ-almalinux-10-hactar"
   }
 }
 
-// Example of creating nodes via module (uncomment and adjust as needed):
-/*
-module "k3s_node_1" {
-  source = "../../modules/proxmox-lxc"
-  hostname = var.control_plane[0].hostname
-  vmid     = var.control_plane[0].vmid
-  target_node = var.control_plane[0].target_node
-  ostemplate  = var.ostemplate
-  password    = var.ct_root_password
-  ssh_public_keys = var.ct_ssh_keys
+module "k3s_control_plane" {
+  source   = "../../modules/proxmox-vm"
+  for_each = { for node in var.control_plane : node.hostname => node }
+
+  hostname    = each.value.hostname
+  vmid        = each.value.vmid
+  target_node = each.value.target_node
+  clone       = local.templates[each.value.target_node]
+  full_clone  = true
+
+  cores  = var.control_plane_cores
+  memory = var.control_plane_memory
+
   network_bridge = var.network_bridge
-  network_ip     = var.control_plane[0].ip
+  network_ip     = "${each.value.ip}/${var.network_cidr}"
   network_gw     = var.network_gw
-  tags = "k3s;control"
+
+  ssh_public_keys = var.vm_ssh_keys
+  tags            = "k3s,control-plane"
 }
-*/
+
+module "k3s_workers" {
+  source   = "../../modules/proxmox-vm"
+  for_each = { for node in var.workers : node.hostname => node }
+
+  hostname    = each.value.hostname
+  vmid        = each.value.vmid
+  target_node = each.value.target_node
+  clone       = local.templates[each.value.target_node]
+  full_clone  = true
+
+  cores  = var.worker_cores
+  memory = var.worker_memory
+
+  network_bridge = var.network_bridge
+  network_ip     = "${each.value.ip}/${var.network_cidr}"
+  network_gw     = var.network_gw
+
+  ssh_public_keys = var.vm_ssh_keys
+  tags            = "k3s,worker"
+}

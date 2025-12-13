@@ -1,11 +1,32 @@
-k3s Terraform service
+## k3s Cluster
 
-This service provisions k3s nodes using the modules/proxmox-lxc module by default (the original k3s/terraform/main.tf references proxmox-lxc).
+### Templates
 
-Usage:
-- Populate terraform.tfvars (or use a secure backend) with ct_root_password and ct_ssh_keys and the control_plane/workers lists.
-- Run terraform init && terraform apply in this directory.
+* name: templ-almalinux-10-eddie
+    * ID in Proxmox: 9000
+    * on host: eddie
 
-Notes:
-- This directory was created by analyzing k3s/terraform/main.tf; it intentionally uses module calls for node creation (examples provided in main.tf).
-- Do not expose secrets in terraform.tfvars.example.
+* name: templ-almalinux-10-hactar
+    * ID in Proxmox: 9001
+    * on host: hactar
+
+### VMs
+
+* hlvm-k3s-c1: control plane node
+    * on host: eddie
+    * ID in Proxmox: 321
+    * static ip: 192.168.20.21/24
+    * gw: 192.168.20.1
+
+* hlvm-k3s-w1: worker node
+    * on host: eddie
+    * ID in Proxmox: 331
+    * static ip: 192.168.20.31/24
+    * gw: 192.168.20.1
+
+* hlvm-k3s-w2: worker node
+    * on host: hactar
+    * ID in Proxmox: 332
+    * static ip: 192.168.20.32/24
+    * gw: 192.168.20.1
+

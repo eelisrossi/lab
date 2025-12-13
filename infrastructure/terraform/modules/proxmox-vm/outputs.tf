@@ -1,14 +1,11 @@
-output "vm_id" {
-  value       = var.vmid
-  description = "VMID of the created VM (placeholder)"
+output "vmid" {
+  value = proxmox_vm_qemu.vm.vmid
 }
 
 output "hostname" {
-  value       = var.hostname
-  description = "Hostname of the VM (placeholder)"
+  value = proxmox_vm_qemu.vm.name
 }
 
-output "ip_address" {
-  value       = ""
-  description = "IP address of the VM (placeholder)"
+output "ip" {
+  value = split(",", split("=", proxmox_vm_qemu.vm.ipconfig0)[1])[0]
 }
