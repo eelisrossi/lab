@@ -40,9 +40,10 @@ resource "proxmox_vm_qemu" "vm" {
     bridge = var.network_bridge
   }
 
-  ipconfig0 = "ip=${var.network_ip},gw=${var.network_gw}"
-  ciuser    = var.ciuser
-  sshkeys   = var.ssh_public_keys
+  ipconfig0  = "ip=${var.network_ip},gw=${var.network_gw}"
+  nameserver = var.nameserver
+  ciuser     = var.ciuser
+  sshkeys    = var.ssh_public_keys
 
   serial {
     id   = 0

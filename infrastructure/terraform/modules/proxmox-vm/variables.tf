@@ -82,6 +82,12 @@ variable "network_gw" {
   type        = string
 }
 
+variable "nameserver" {
+  description = "DNS nameservers (space-separated)"
+  type        = string
+  default     = "1.1.1.1"
+}
+
 variable "onboot" {
   description = "Start VM on boot"
   type        = bool
