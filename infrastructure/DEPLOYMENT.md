@@ -39,6 +39,19 @@ kubectl get pods -A
 ./deploy-k3s-cluster.sh --skip-kubeconfig
 ```
 
+### Get Kubeconfig Only
+
+```bash
+# Just retrieve/update kubeconfig (cluster already deployed)
+./deploy-k3s-cluster.sh --kubeconfig-only
+```
+
+This is useful when:
+- Your cluster is already running
+- You need to refresh your kubeconfig
+- You're setting up kubectl on a new machine
+- Your kubeconfig was deleted or corrupted
+
 ### Destroy Infrastructure
 
 ```bash

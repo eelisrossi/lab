@@ -14,6 +14,7 @@
 #   --skip-terraform    Skip Terraform provisioning (use existing VMs)
 #   --skip-ansible      Skip Ansible k3s installation
 #   --skip-kubeconfig   Skip kubeconfig retrieval
+#   --kubeconfig-only   Only retrieve kubeconfig (skip everything else)
 #   --destroy           Destroy infrastructure and exit
 #   -h, --help          Show this help message
 #
@@ -38,6 +39,7 @@ CONTROL_PLANE_USER="srv-adm"
 SKIP_TERRAFORM=false
 SKIP_ANSIBLE=false
 SKIP_KUBECONFIG=false
+KUBECONFIG_ONLY=false
 DESTROY=false
 
 # Functions
@@ -146,39 +148,48 @@ retrieve_kubeconfig() {
     
     local kubeconfig_dir="${HOME}/.kube"
     local kubeconfig_file="${kubeconfig_dir}/config"
-    local k3s_config="${kubeconfig_dir}/k3s-config"
     
     mkdir -p "${kubeconfig_dir}"
     
+    # Check if kubeconfig already exists
+    if [ -f "${kubeconfig_file}" ] && [ "$KUBECONFIG_ONLY" = false ]; then
+        log_warning "Kubeconfig already exists at ${kubeconfig_file}"
+        read -p "Overwrite? (y/N): " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            log_info "Keeping existing kubeconfig"
+            return 0
+        fi
+    fi
+    
     # Retrieve kubeconfig from control plane (with SSH options to skip host key checking)
-    if ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${CONTROL_PLANE_USER}@${CONTROL_PLANE_IP}" sudo cat /etc/rancher/k3s/k3s.yaml > "${k3s_config}" 2>/dev/null; then
+    if ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${CONTROL_PLANE_USER}@${CONTROL_PLANE_IP}" sudo cat /etc/rancher/k3s/k3s.yaml > "${kubeconfig_file}" 2>/dev/null; then
         log_success "Retrieved kubeconfig from control plane"
     else
         log_error "Failed to retrieve kubeconfig"
+        log_error "Make sure the control plane is running at ${CONTROL_PLANE_IP}"
         return 1
     fi
     
     # Update server address
-    sed -i.bak "s/127.0.0.1/${CONTROL_PLANE_IP}/g" "${k3s_config}"
+    sed -i.bak "s/127.0.0.1/${CONTROL_PLANE_IP}/g" "${kubeconfig_file}"
+    rm -f "${kubeconfig_file}.bak"
     
-    # Set as default if no existing config or user confirms
-    if [ ! -f "${kubeconfig_file}" ]; then
-        cp "${k3s_config}" "${kubeconfig_file}"
-        log_success "Set as default kubeconfig: ${kubeconfig_file}"
-    else
-        log_warning "Existing kubeconfig found at ${kubeconfig_file}"
-        log_info "k3s kubeconfig saved to: ${k3s_config}"
-        log_info "To use it: export KUBECONFIG=${k3s_config}"
-    fi
+    log_success "Kubeconfig saved to: ${kubeconfig_file}"
     
     # Test connection
     if command -v kubectl >/dev/null 2>&1; then
         log_info "Testing kubectl connection..."
-        if kubectl --kubeconfig="${k3s_config}" get nodes; then
-            log_success "kubectl is working!"
+        echo ""
+        if kubectl get nodes 2>/dev/null; then
+            echo ""
+            log_success "kubectl is working! Try: kubectl get nodes"
         else
-            log_warning "kubectl command failed, but kubeconfig was retrieved"
+            log_warning "kubectl connection test failed, but kubeconfig was retrieved"
         fi
+    else
+        log_info "kubectl not found - install it to test connection"
+        log_info "Kubeconfig is ready at: ${kubeconfig_file}"
     fi
 }
 
@@ -224,6 +235,12 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-kubeconfig)
             SKIP_KUBECONFIG=true
+            shift
+            ;;
+        --kubeconfig-only)
+            KUBECONFIG_ONLY=true
+            SKIP_TERRAFORM=true
+            SKIP_ANSIBLE=true
             shift
             ;;
         --destroy)
@@ -284,8 +301,10 @@ main() {
         echo ""
     fi
     
-    # Show final information
-    show_cluster_info
+    # Show final information (skip if only getting kubeconfig)
+    if [ "$KUBECONFIG_ONLY" = false ]; then
+        show_cluster_info
+    fi
 }
 
 # Run main function
