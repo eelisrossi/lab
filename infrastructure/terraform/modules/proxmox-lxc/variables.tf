@@ -38,25 +38,122 @@ variable "unprivileged" {
   default     = true
 }
 
-variable "cores" { description = "CPU cores for container" type = number default = 1 }
-variable "cpulimit" { description = "CPU limit" type = number default = 1 }
-variable "memory" { description = "Memory in MB" type = number default = 768 }
-variable "swap" { description = "Swap in MB" type = number default = 256 }
+variable "cores" {
+  description = "CPU cores for container"
+  type        = number
+  default     = 1
+}
+variable "cpulimit" {
+  description = "CPU limit"
+  type        = number
+  default     = 1
+}
+variable "memory" {
+  description = "Memory in MB"
+  type        = number
+  default     = 768
+}
+variable "swap" {
+  description = "Swap in MB"
+  type        = number
+  default     = 256
+}
 
-variable "disk_size" { description = "Root disk size (e.g., 16G)" type = string default = "16G" }
-variable "storage" { description = "Storage to use for rootfs" type = string default = "local-lvm" }
+variable "disk_size" {
+  description = "Root disk size (e.g., 16G)"
+  type        = string
+  default     = "16G"
+}
+variable "storage" {
+  description = "Storage to use for rootfs"
+  type        = string
+  default     = "local-lvm"
+}
 
-variable "network_name" { description = "Network interface name inside container" type = string default = "eth0" }
-variable "network_bridge" { description = "Bridge to attach the container to" type = string }
-variable "network_ip" { description = "IP with CIDR (e.g., 192.168.1.10/24)" type = string }
-variable "network_gw" { description = "Gateway IP" type = string }
+variable "network_name" {
+  description = "Network interface name inside container"
+  type        = string
+  default     = "eth0"
+}
+variable "network_bridge" {
+  description = "Bridge to attach the container to"
+  type        = string
+}
+variable "network_ip" {
+  description = "IP with CIDR (e.g., 192.168.1.10/24)"
+  type        = string
+}
+variable "network_gw" {
+  description = "Gateway IP"
+  type        = string
+}
 
-variable "nameserver" { description = "Container nameserver" type = string default = "1.1.1.1" }
+variable "nameserver" {
+  description = "Container nameserver"
+  type        = string
+  default     = "1.1.1.1"
+}
 
-variable "startup" { description = "Startup options" type = string default = "order=1,up=10,down=60" }
-variable "start" { description = "Start container after creation" type = bool default = true }
-variable "onboot" { description = "Start on boot" type = bool default = true }
-variable "protection" { description = "Enable protection" type = bool default = true }
-variable "nesting" { description = "Enable nesting feature" type = bool default = true }
+variable "startup" {
+  description = "Startup options"
+  type        = string
+  default     = "order=1,up=10,down=60"
+}
+variable "start" {
+  description = "Start container after creation"
+  type        = bool
+  default     = true
+}
+variable "onboot" {
+  description = "Start on boot"
+  type        = bool
+  default     = true
+}
+variable "protection" {
+  description = "Enable protection"
+  type        = bool
+  default     = true
+}
+variable "nesting" {
+  description = "Enable nesting feature"
+  type        = bool
+  default     = true
+}
 
-variable "tags" { description = "Tags for the container" type = string default = "" }
+variable "tags" {
+  description = "Tags for the container"
+  type        = string
+  default     = ""
+}
+
+# Optional bootstrap provisioner (non-invasive)
+variable "bootstrap_enabled" {
+  description = "Enable an optional one-time bootstrap provisioner to run a small script via SSH after container creation. Prefer Ansible for full configuration."
+  type        = bool
+  default     = false
+}
+
+variable "bootstrap_user" {
+  description = "SSH username for bootstrap (must exist in container)"
+  type        = string
+  default     = "root"
+}
+
+variable "bootstrap_private_key" {
+  description = "Private key content used for SSH bootstrap (sensitive). Consider using agent or external secrets instead."
+  type      = string
+  sensitive = true
+  default   = ""
+}
+
+variable "bootstrap_script" {
+  description = "Script content to upload and execute on the container during bootstrap. If empty, nothing runs."
+  type    = string
+  default = ""
+}
+
+variable "bootstrap_timeout" {
+  description = "Connection timeout for bootstrap provisioner"
+  type        = string
+  default     = "5m"
+}
