@@ -1,14 +1,6 @@
-# Terraform
-.terraform/
-crash.log
-terraform.tfstate
-terraform.tfstate.backup
-
-# Terraform variables
+# Ignore credentials and tfvars in bind9 terraform directory
+credentials.auto.tfvars
 *.tfvars
-*.tfvars.json
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
-
+*.tfvars.*
+*.auto.tfvars
+!*.tfvars.example

@@ -1,0 +1,10 @@
+# Ignore terraform variable files with secrets
+*.tfvars
+*.tfvars.*
+*.auto.tfvars
+# keep examples
+!*.tfvars.example
+# terraform local state
+*.tfstate
+*.tfstate.*
+.terraform/
