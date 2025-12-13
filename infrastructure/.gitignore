@@ -8,3 +8,5 @@
 *.tfstate
 *.tfstate.*
 .terraform/
+infrastructure/bind9/terraform/terraform.tfstate
+infrastructure/bind9/terraform/terraform.tfstate.backup

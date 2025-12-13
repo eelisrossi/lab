@@ -1,16 +1,16 @@
 // Provider configuration for k3s service (same as bind9/provider.tf)
-terraform {
-  required_providers {
-    proxmox = {
-      source = "telmate/proxmox"
-      version = "3.0.2-rc05"
-    }
-  }
-}
 
-variable "proxmox_api_url" { type = string }
-variable "proxmox_api_token_id" { type = string sensitive = true }
-variable "proxmox_api_token_secret" { type = string sensitive = true }
+variable "proxmox_api_url" {
+  type = string
+}
+variable "proxmox_api_token_id" {
+  type      = string
+  sensitive = true
+}
+variable "proxmox_api_token_secret" {
+  type      = string
+  sensitive = true
+}
 
 provider "proxmox" {
   pm_api_url          = var.proxmox_api_url

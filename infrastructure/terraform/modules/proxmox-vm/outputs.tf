@@ -1,14 +1,14 @@
 output "vm_id" {
-  value       = proxmox_vm_qemu.vm.vmid
-  description = "VMID of the created VM"
+  value       = var.vmid
+  description = "VMID of the created VM (placeholder)"
 }
 
 output "hostname" {
-  value       = proxmox_vm_qemu.vm.name
-  description = "Hostname of the VM"
+  value       = var.hostname
+  description = "Hostname of the VM (placeholder)"
 }
 
 output "ip_address" {
-  value       = try(proxmox_vm_qemu.vm.network[0].ip, "")
-  description = "IP address of the VM"
+  value       = ""
+  description = "IP address of the VM (placeholder)"
 }
