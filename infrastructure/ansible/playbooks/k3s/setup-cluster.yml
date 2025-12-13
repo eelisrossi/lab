@@ -1,0 +1,11 @@
+# Placeholder: setup initial k3s cluster
+# Use roles/k3s_server and roles/common
+- name: Setup initial k3s control plane
+  hosts: k3s_control_plane
+  become: true
+  vars_files:
+    - ../../vault.yml
+  roles:
+    - k3s_server
+    - common
+  # This was created as a placeholder during migration from the previous layout.

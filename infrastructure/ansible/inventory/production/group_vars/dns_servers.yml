@@ -1,0 +1,5 @@
+# Bind9-specific group variables (migrated/created during restructuring)
+# If the original bind9 setup defined group-level variables, add them here.
+# Provide sensible defaults so role templates render even before full migration.
+dns_reverse_zones: []
+dns_records: {}

@@ -1,0 +1,11 @@
+---
+# Placeholder tasks for k3s agent role (worker setup)
+- name: Ensure prerequisite packages are installed
+  ansible.builtin.package:
+    name:
+      - curl
+    state: present
+
+- name: Placeholder - install k3s agent
+  ansible.builtin.debug:
+    msg: "k3s agent install placeholder - implement installation steps here"

@@ -1,9 +1,0 @@
----
-- name: Update nameservers
-  hosts: nameservers
-  gather_facts: true
-  tasks:
-    - name: Update all packages
-      ansible.builtin.dnf:
-        name: '*'
-        state: latest

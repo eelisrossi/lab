@@ -1,0 +1,9 @@
+# Placeholder: upgrade k3s cluster
+- name: Upgrade k3s cluster
+  hosts: k3s_cluster
+  become: true
+  vars:
+    k3s_version: "{{ k3s_version | default('v1.28.0+k3s1') }}"
+  roles:
+    - k3s_server
+    - k3s_agent

@@ -1,0 +1,12 @@
+---
+# Placeholder tasks for k3s server role (control plane setup)
+- name: Ensure prerequisite packages are installed
+  ansible.builtin.package:
+    name:
+      - curl
+      - iptables
+    state: present
+
+- name: Placeholder - install k3s server
+  ansible.builtin.debug:
+    msg: "k3s server install placeholder - implement installation steps here"

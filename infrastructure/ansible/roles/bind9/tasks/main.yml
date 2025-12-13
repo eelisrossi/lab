@@ -1,0 +1,75 @@
+---
+- name: Update all packages
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+
+- name: Install openssh-server
+  ansible.builtin.dnf:
+    name: 'openssh-server'
+    state: latest
+
+- name: Enable sshd service
+  ansible.builtin.systemd:
+    name: sshd
+    state: started
+    enabled: true
+
+- name: Install bind and bind-utils
+  ansible.builtin.dnf:
+    name:
+      - bind
+      - bind-utils
+    state: present
+
+- name: Download latest root hints file for Bind9
+  ansible.builtin.get_url:
+    url: https://www.internic.net/domain/named.root
+    dest: /var/named/named.root
+    owner: root
+    group: named
+    mode: '0644'
+
+- name: Template named.conf
+  ansible.builtin.template:
+    src: "{{ named_conf_template }}"
+    dest: "{{ named_conf_dest }}"
+    owner: root
+    group: named
+    mode: '0644'
+  notify: reload named
+
+- name: Generate zone file
+  ansible.builtin.template:
+    src: "{{ dns_zone_template }}"
+    dest: "{{ dns_zone_config_dest }}"
+  notify: reload named
+
+- name: Create reverse zone files
+  ansible.builtin.template:
+    src: "{{ reverse_zone_template }}"
+    dest: "/var/named/{{ item.file }}"
+    owner: named
+    group: named
+    mode: '0640'
+  loop: "{{ dns_reverse_zones }}"
+  vars:
+    ptr_records: "{{ item.ptr_records }}"
+  notify: reload named
+
+- name: Enable and start named.service
+  ansible.builtin.systemd:
+    name: named
+    enabled: yes
+    state: started
+
+- name: Set DNS servers to ns1 and ns2 (NetworkManager)
+  community.general.nmcli:
+    conn_name: "eth0"
+    type: ethernet
+    dns4: "{{ group_dns_servers | default('192.168.10.5,192.168.10.6') }}"
+    state: present
+
+- name: Reload NetworkManager
+  ansible.builtin.shell: nmcli con reload
+  changed_when: false

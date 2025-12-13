@@ -1,0 +1,7 @@
+# Base system setup using the common role
+# Applies common configuration to all hosts (migrated as part of restructuring)
+- name: Base system setup
+  hosts: all
+  become: true
+  roles:
+    - common

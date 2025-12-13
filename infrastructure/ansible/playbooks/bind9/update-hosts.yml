@@ -1,0 +1,12 @@
+# Migrated from bind9/ansible/update-hosts.yml
+# inventory: ../../inventory/production/hosts.yml
+- name: Update DNS hosts (package update)
+  hosts: dns_servers
+  gather_facts: true
+  roles:
+    - ../../roles/common
+  tasks:
+    - name: Update all packages
+      ansible.builtin.dnf:
+        name: '*'
+        state: latest

@@ -1,6 +1,0 @@
-# Ignore credentials and tfvars in bind9 terraform directory
-credentials.auto.tfvars
-*.tfvars
-*.tfvars.*
-*.auto.tfvars
-!*.tfvars.example
