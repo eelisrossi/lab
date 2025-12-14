@@ -65,5 +65,5 @@ variable "worker_cores" {
 variable "worker_memory" {
   description = "Memory in MB for worker nodes"
   type        = number
-  default     = 2048
+  default     = 4096
 }

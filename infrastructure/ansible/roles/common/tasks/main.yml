@@ -4,9 +4,11 @@
     name: "*"
     state: latest
 
-- name: Install openssh-server
+- name: Install essential packages
   ansible.builtin.dnf:
-    name: 'openssh-server'
+    name:
+      - openssh-server
+      - qemu-guest-agent
     state: latest
 
 - name: Enable sshd service
@@ -14,3 +16,20 @@
     name: sshd
     state: started
     enabled: true
+
+- name: Check if virtio device exists
+  ansible.builtin.stat:
+    path: /dev/virtio-ports/org.qemu.guest_agent.0
+  register: virtio_device
+
+- name: Enable qemu-guest-agent service
+  ansible.builtin.systemd:
+    name: qemu-guest-agent
+    state: started
+    enabled: true
+  when: virtio_device.stat.exists
+
+- name: Warn if QEMU guest agent device not available
+  ansible.builtin.debug:
+    msg: "WARNING: QEMU guest agent device not found. Enable agent=1 in Proxmox VM config."
+  when: not virtio_device.stat.exists

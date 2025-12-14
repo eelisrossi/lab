@@ -1,2 +1,0 @@
-# Defaults for k3s_server role
-k3s_version: "v1.28.0+k3s1"

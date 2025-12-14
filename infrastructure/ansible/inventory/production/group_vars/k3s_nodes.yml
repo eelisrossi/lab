@@ -1,5 +1,0 @@
-# k3s-specific group variables (placeholder)
-# Populated as part of creating the k3s inventory layout.
-k3s_version: "v1.28.0+k3s1"
-k3s_token: "changeme"
-k3s_install_flags: []

@@ -1,2 +1,0 @@
-# Defaults for k3s_agent role
-k3s_agent_token: "changeme"

@@ -1,6 +1,0 @@
-# Placeholder: add a k3s worker node
-- name: Add k3s agent node
-  hosts: k3s_workers
-  become: true
-  roles:
-    - k3s_agent

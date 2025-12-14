@@ -1,9 +1,9 @@
 # TODO
 
 - [x] Get things running with a mix of automation and doing stuff by hand
-    - [ ] DNS automation
-    - [ ] k3s cluster
-    - [ ] Nginx Proxy Manager
+    - [x] DNS automation
+    - [x] k3s cluster
+    - [ ] Nginx Proxy Manager or Traefik
 
 ## General
 

@@ -1,6 +1,0 @@
----
-# Handlers for k3s_agent (placeholder)
-- name: restart k3s-agent
-  ansible.builtin.systemd:
-    name: k3s-agent
-    state: restarted

@@ -1,4 +1,0 @@
-# Common variables for all hosts
-# New file created as part of migration from bind9/ansible
-ansible_user: root
-# Add global defaults here

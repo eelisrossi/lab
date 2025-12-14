@@ -1,9 +1,0 @@
-# Update all systems across inventory
-- name: Update all systems
-  hosts: all
-  become: true
-  tasks:
-    - name: Update all packages
-      ansible.builtin.dnf:
-        name: '*'
-        state: latest

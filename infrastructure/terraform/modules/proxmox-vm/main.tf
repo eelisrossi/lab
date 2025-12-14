@@ -7,7 +7,7 @@ resource "proxmox_vm_qemu" "vm" {
   full_clone = var.full_clone
 
   os_type = "cloud-init"
-  agent   = 0
+  agent   = 1
 
   cpu {
     cores = var.cores
