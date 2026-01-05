@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mumble-config
+  namespace: mumble
+data:
+  mumble.ini: |
+    welcometext="<br />Welcome to this Mumble server<br />"
+    port=64738
+    serverpassword=
+    bandwidth=130000
+    users=10
+    textmessagelength=5000
+    imagemessagelength=131072
+    allowhtml=true
+    logdays=31
+    bonjour=false
+    sendversion=false
+    registerName=Nallen Luola
+    registerPassword=
+    registerUrl=
+    registerHostname=

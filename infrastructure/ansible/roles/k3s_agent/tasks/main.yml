@@ -1,54 +1,18 @@
 ---
-- name: Disable SELinux (required for k3s on AlmaLinux)
-  ansible.posix.selinux:
-    state: permissive
-    policy: targeted
+- name: Install k3s agent and join cluster
+  ansible.builtin.command:
+    argv:
+      - /bin/sh
+      - /tmp/k3s_install.sh
+  args:
+    creates: /usr/local/bin/k3s
+  environment:
+    K3S_URL: "https://192.168.20.21:6443"
+    K3S_TOKEN: "TOSI-HIENO-TOKEN"
   become: true
 
-- name: Check if k3s agent is already installed
-  ansible.builtin.stat:
-    path: /usr/local/bin/k3s
-  register: k3s_binary
-
-- name: Download k3s install script
-  ansible.builtin.get_url:
-    url: https://get.k3s.io
-    dest: /tmp/k3s-install.sh
-    mode: '0755'
-  when: not k3s_binary.stat.exists
-  retries: 3
-  delay: 5
-
-- name: Install k3s agent
-  ansible.builtin.shell: |
-    INSTALL_K3S_SKIP_SELINUX_RPM=true \
-    INSTALL_K3S_SKIP_ENABLE=true \
-    K3S_URL="{{ hostvars[groups['k3s_control_plane'][0]]['k3s_server_url'] }}" \
-    K3S_TOKEN="{{ hostvars[groups['k3s_control_plane'][0]]['k3s_node_token'] }}" \
-    sh /tmp/k3s-install.sh
-  when: not k3s_binary.stat.exists
-  register: k3s_agent_install
-  retries: 3
-  delay: 10
-  until: k3s_agent_install.rc == 0
-
-- name: Fix k3s-agent service (remove br_netfilter check)
-  ansible.builtin.lineinfile:
-    path: /etc/systemd/system/k3s-agent.service
-    regexp: '^ExecStartPre=/sbin/modprobe br_netfilter'
-    state: absent
-  become: true
-  when: k3s_agent_install is changed
-
-- name: Reload systemd and start k3s-agent
-  ansible.builtin.systemd:
-    daemon_reload: true
+- name: Restart k3s-agent service
+  ansible.builtin.systemd_service:
     name: k3s-agent
-    state: started
-    enabled: true
-  when: k3s_agent_install is changed
+    state: restarted
 
-- name: Wait for k3s agent to be ready
-  ansible.builtin.wait_for:
-    timeout: 60
-  when: k3s_agent_install is changed

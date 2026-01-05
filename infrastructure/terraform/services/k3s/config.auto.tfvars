@@ -2,6 +2,9 @@ network_bridge = "VLAN20"
 network_gw     = "192.168.20.1"
 nameserver     = "192.168.10.5 192.168.10.6"  # Use bind9 DNS servers
 
+control_plane_cores = 2
+control_plane_memory = 6144
+
 control_plane = [
   {
     hostname    = "hlvm-k3s-c1"
@@ -10,6 +13,9 @@ control_plane = [
     ip          = "192.168.20.21"
   },
 ]
+
+worker_cores = 2
+worker_memory = 4096
 
 workers = [
   {

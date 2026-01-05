@@ -1,6 +1,8 @@
+---
 - name: Install and configure Bind9 DNS servers
   hosts: dns_servers
+  become: true
   vars_files:
-    - ../../vault.yml
+    - vault.yml
   roles:
-    - role: ../../roles/bind9
+    - bind9

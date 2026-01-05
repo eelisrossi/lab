@@ -1,6 +1,6 @@
 $TTL 1h
-@   IN  SOA {{ dns_hostname }}. admin.milliways.fi. (
-        {{ ansible_date_time.date | regex_replace('-', '') }}01 ; Serial
+@   IN  SOA {{ inventory_hostname }}.milliways.fi. admin.milliways.fi. (
+        {{ dns_serial_date | default(ansible_facts.date_time.date | regex_replace('-', '')) }}01 ; Serial
         1h         ; Refresh
         15m        ; Retry
         1w         ; Expire

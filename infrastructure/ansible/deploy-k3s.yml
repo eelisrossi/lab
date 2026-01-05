@@ -4,6 +4,7 @@
   become: true
   roles:
     - common
+    - k3s_vm
     - k3s_server
 
 - name: Deploy k3s worker nodes
@@ -11,4 +12,5 @@
   become: true
   roles:
     - common
+    - k3s_vm
     - k3s_agent

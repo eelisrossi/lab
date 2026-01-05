@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mumble
+  namespace: mumble
+spec:
+  selector:
+    app: mumble
+  ports:
+  - protocol: TCP
+    port: 64738
+    targetPort: 64738
+    nodePort: 30738
+    name: mumble-tcp
+  - protocol: UDP
+    port: 64738
+    targetPort: 64738
+    nodePort: 30738
+    name: mumble-udp
+  type: NodePort

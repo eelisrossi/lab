@@ -21,7 +21,7 @@ variable "clone" {
 variable "full_clone" {
   description = "Use full clone"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "cores" {
@@ -33,7 +33,7 @@ variable "cores" {
 variable "cpu_type" {
   description = "CPU type (e.g., 'host', 'x86-64-v2-AES')"
   type        = string
-  default     = "x86-64-v2-AES"
+  default     = "host"
 }
 
 variable "memory" {

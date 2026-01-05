@@ -1,160 +1,28 @@
 ---
-- name: Disable SELinux (required for k3s on AlmaLinux)
-  ansible.posix.selinux:
-    state: permissive
-    policy: targeted
+- name: Run k3s install script
+  ansible.builtin.command:
+    argv:
+      - /bin/sh
+      - /tmp/k3s_install.sh
+  args:
+    creates: /usr/local/bin/k3s
+  environment:
+    K3S_TOKEN: "TOSI-HIENO-TOKEN"
+    INSTALL_K3S_EXEC: >-
+      --cluster-init
+      --write-kubeconfig-mode=644
+      --node-taint=node-role.kubernetes.io/master:NoSchedule
   become: true
 
-- name: Check if k3s is already installed
-  ansible.builtin.stat:
-    path: /usr/local/bin/k3s
-  register: k3s_binary
-
-- name: Download k3s install script
-  ansible.builtin.get_url:
-    url: https://get.k3s.io
-    dest: /tmp/k3s-install.sh
-    mode: '0755'
-  when: not k3s_binary.stat.exists
-  retries: 3
-  delay: 5
-
-- name: Install k3s server
-  ansible.builtin.shell: |
-    INSTALL_K3S_SKIP_SELINUX_RPM=true \
-    INSTALL_K3S_SKIP_ENABLE=true \
-    INSTALL_K3S_EXEC="server --write-kubeconfig-mode=644 --flannel-backend=none --disable-network-policy --disable=servicelb" \
-    sh /tmp/k3s-install.sh
-  when: not k3s_binary.stat.exists
-  register: k3s_install
-  retries: 3
-  delay: 10
-  until: k3s_install.rc == 0
-
-- name: Fix k3s service (remove br_netfilter check)
-  ansible.builtin.lineinfile:
-    path: /etc/systemd/system/k3s.service
-    regexp: '^ExecStartPre=/sbin/modprobe br_netfilter'
-    state: absent
-  become: true
-  when: k3s_install is changed
-
-- name: Reload systemd and start k3s
-  ansible.builtin.systemd:
-    daemon_reload: true
+- name: Restart k3s service
+  ansible.builtin.systemd_service:
     name: k3s
-    state: started
-    enabled: true
-  when: k3s_install is changed
+    state: restarted
 
 - name: Wait for k3s to be ready
   ansible.builtin.wait_for:
-    path: /etc/rancher/k3s/k3s.yaml
-    timeout: 120
+    port: 6443
+    host:  localhost
+    delay: 5
+    timeout: 60
 
-- name: Get k3s node token
-  ansible.builtin.slurp:
-    src: /var/lib/rancher/k3s/server/node-token
-  register: k3s_token
-
-- name: Save k3s token for workers
-  ansible.builtin.set_fact:
-    k3s_node_token: "{{ k3s_token.content | b64decode | trim }}"
-
-- name: Get k3s server URL
-  ansible.builtin.set_fact:
-    k3s_server_url: "https://{{ ansible_host }}:6443"
-
-- name: Display k3s status
-  ansible.builtin.command: /usr/local/bin/k3s kubectl get nodes
-  changed_when: false
-  register: k3s_nodes
-
-- name: Show cluster status
-  ansible.builtin.debug:
-    var: k3s_nodes.stdout_lines
-
-- name: Check if Helm is installed
-  ansible.builtin.stat:
-    path: /usr/local/bin/helm
-  register: helm_binary
-
-- name: Download Helm tarball
-  ansible.builtin.get_url:
-    url: https://get.helm.sh/helm-v3.16.3-linux-amd64.tar.gz
-    dest: /tmp/helm.tar.gz
-    mode: '0644'
-  when: not helm_binary.stat.exists
-  retries: 3
-  delay: 5
-
-- name: Extract Helm binary
-  ansible.builtin.unarchive:
-    src: /tmp/helm.tar.gz
-    dest: /tmp
-    remote_src: true
-  when: not helm_binary.stat.exists
-
-- name: Install Helm binary
-  ansible.builtin.copy:
-    src: /tmp/linux-amd64/helm
-    dest: /usr/local/bin/helm
-    mode: '0755'
-    remote_src: true
-  when: not helm_binary.stat.exists
-
-- name: Add Cilium Helm repository
-  ansible.builtin.command: /usr/local/bin/helm repo add cilium https://helm.cilium.io/
-  environment:
-    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
-  changed_when: false
-  register: helm_repo_add
-  failed_when: helm_repo_add.rc != 0 and 'already exists' not in helm_repo_add.stderr
-
-- name: Update Helm repositories
-  ansible.builtin.command: /usr/local/bin/helm repo update
-  environment:
-    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
-  changed_when: false
-
-- name: Check if Cilium is already installed
-  ansible.builtin.command: /usr/local/bin/helm list -n kube-system -o json
-  environment:
-    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
-  register: helm_list
-  changed_when: false
-
-- name: Install Cilium CNI
-  ansible.builtin.command: >
-    /usr/local/bin/helm install cilium cilium/cilium
-    --version 1.16.5
-    --namespace kube-system
-    --set operator.replicas=1
-    --set ipam.mode=kubernetes
-    --set k8sServiceHost={{ ansible_host }}
-    --set k8sServicePort=6443
-    --set l2announcements.enabled=true
-    --set externalIPs.enabled=true
-  environment:
-    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
-  when: "'cilium' not in helm_list.stdout"
-  changed_when: true
-  register: cilium_install
-
-- name: Wait for Cilium to be ready
-  ansible.builtin.command: >
-    /usr/local/bin/k3s kubectl wait --for=condition=ready pod
-    -l app.kubernetes.io/name=cilium-agent
-    -n kube-system
-    --timeout=300s
-  changed_when: false
-  when: cilium_install is changed
-
-- name: Display final cluster status
-  ansible.builtin.command: /usr/local/bin/k3s kubectl get nodes
-  changed_when: false
-  register: final_nodes
-
-- name: Show final cluster status
-  ansible.builtin.debug:
-    var: final_nodes.stdout_lines

@@ -1,20 +1,53 @@
 // /etc/named.conf
 
+acl "trusted" {
+    127.0.0.1;
+    ::1;
+    192.168.10.5;
+    192.168.10.6;
+    192.168.0.0/17;
+};
+
 options {
+    minimal-responses yes;
+
+    rate-limit {
+        responses-per-second 10;
+        window 5;
+        slip 2;
+        ipv4-prefix-length 24;
+        ipv6-prefix-length 64;
+
+        /* Exempt known internal clients and the two servers themselves */
+        exempt-clients { trusted; };
+    };
+
+    max-udp-size 4096;
+
 	listen-on port 53 { 127.0.0.1; 192.168.0.0/17; };
     listen-on-v6 { none; };
+
 	directory 	"/var/named";
 	dump-file 	"/var/named/data/cache_dump.db";
 	statistics-file "/var/named/data/named_stats.txt";
 	memstatistics-file "/var/named/data/named_mem_stats.txt";
 	secroots-file	"/var/named/data/named.secroots";
 	recursing-file	"/var/named/data/named.recursing";
-	allow-query     { 192.168.0.0/17; localhost; };
+
+	allow-query     { trusted; };
+    allow-query-cache { trusted; };
 
 	recursion yes;
-    allow-recursion { 192.168.0.0/17; localhost; };
+    allow-recursion { trusted; };
 
 	dnssec-validation yes;
+
+    forwarders {
+        1.1.1.1;
+        8.8.4.4;
+    };
+
+    allow-transfer { none; };
 
 	managed-keys-directory "/var/named/dynamic";
 	geoip-directory "/usr/share/GeoIP";
@@ -41,13 +74,18 @@ zone "." IN {
 zone "milliways.fi" IN {
 	type master;
 	file "/var/named/named.milliways.fi";
+    allow-transfer { none; };
+    allow-update { none; };
+    notify no;
 };
 
 {% for zone in dns_reverse_zones %}
 zone "{{ zone.name }}" IN {
     type master;
     file "/var/named/{{ zone.file }}";
+    allow-transfer { none; };
     allow-update { none; };
+    notify no;
 };
 {% endfor %}
 

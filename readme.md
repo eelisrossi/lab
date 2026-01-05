@@ -5,16 +5,22 @@ All of the learning I'm doing.
 ## Infrastructure
 
 The 'Infrastructure' directory houses all of the different Infrastructure as Code (IaC) services I have set up.
+The directory is structured by technology.0
 
 ### Currently running:
 
 * Bind9 DNS-server that runs on two nodes
+* Nginx Proxy Manager for easy TLS sertificate management
+* k3s cluster running with one master node and two workers. It's running the following:
+    * glance -> a lightweight dashboard (which I've yet to configure a lot)
+    * mumble -> a VoIP solution for me and my partner to have low latency VoIP at home
+    * Portainer and Rancher -> for managing the k8s cluster via GUI
+    * Vikunja -> a todo app
 
 ### To be added soon
 
 * Personal gitlab instance
 * Zabbix VM for monitoring my lab
-* A reverse proxy for easier usage of different web services that I self-host
 
 ## Lab environment
 

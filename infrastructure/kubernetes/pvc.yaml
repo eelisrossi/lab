@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nfs-pvc
+  namespace: default  # Change to your namespace
+spec:
+  accessModes:
+    - ReadWriteMany  # Allows multiple pods to read/write simultaneously
+  storageClassName: nfs-csi
+  resources:
+    requests:
+      storage: 10Gi  # Adjust size as needed

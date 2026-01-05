@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mumble
+  namespace: mumble
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mumble
+  template:
+    metadata:
+      labels:
+        app: mumble
+    spec:
+      containers:
+      - name: mumble
+        image: mumblevoip/mumble-server:latest
+        ports:
+        - containerPort: 64738
+          name: mumble-tcp
+          protocol: TCP
+        - containerPort: 64738
+          name: mumble-udp
+          protocol: UDP
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        - name: config
+          mountPath: /etc/mumble/mumble.ini
+          subPath: mumble.ini
+          readOnly: true
+        env:
+        - name: MUMBLE_CONFIG
+          value: /etc/mumble/mumble.ini
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: mumble-data
+      - name: config
+        configMap:
+          name: mumble-config
